@@ -1,0 +1,103 @@
+package tests;
+
+import Implementation.dtos.UserDTO;
+import Implementation.repositories.IUserRepository;
+import Implementation.repositories.UserRepository;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.Collections;
+
+
+public final class UserRepositoryTest extends RepositoryTestBase<UserDTO, IUserRepository> {
+
+    @Test
+    public void add() {
+        UserDTO userDTO = new UserDTO(7, "UserAdd", "added user");
+        _repository.add(userDTO);
+
+        Assert.assertEquals(_repository.getCount(), 1);
+        Assert.assertTrue(_repository.exists(userDTO));
+    }
+
+    @Test
+    public void update() {
+        UserDTO userDTO = new UserDTO(1, "UserAdd", "added user");
+        _repository.add(userDTO);
+        Assert.assertTrue(_repository.exists(userDTO));
+
+        String login = "userUp";
+        String password = "Updated use";
+
+        UserDTO groupDTO2 = new UserDTO(1, login, password);
+        _repository.update(groupDTO2);
+        Assert.assertTrue(_repository.exists(groupDTO2));
+
+        Assert.assertEquals(_repository.getCount(), 1);
+        Assert.assertEquals(_repository.findById(1).getLogin(), login);
+        Assert.assertEquals(_repository.findById(1).getPassword(), password);
+
+    }
+
+    @Test
+    public void addOrUpdate() {
+        String login = "login";
+        String password = "password";
+        UserDTO userDTO1 = new UserDTO(2, login, password);
+        _repository.addOrUpdate(userDTO1);
+
+        Assert.assertEquals(_repository.getCount(), 1);
+        Assert.assertEquals(_repository.findById(2).getLogin(), login);
+        Assert.assertEquals(_repository.findById(2).getPassword(), password);
+
+        String login2 = "login2";
+        String password2 = "password2";
+        UserDTO userDTO2 = new UserDTO(2, login2, password2);
+        _repository.addOrUpdate(userDTO2);
+
+        Assert.assertEquals(_repository.getCount(), 1);
+        Assert.assertEquals(_repository.findById(2).getPassword(), password2);
+        Assert.assertEquals(_repository.findById(2).getLogin(), login2);
+    }
+
+    @Test
+    public void delete() {
+        String login = "login";
+        String password = "password";
+        UserDTO userDTO = new UserDTO(2, login, password);
+        _repository.add(userDTO);
+        Assert.assertTrue(_repository.exists(userDTO));
+
+        System.out.println(_repository.findById(2).getLogin());
+       // Assert.assertEquals(_repository.findById(2).getLogin(), login);
+        Assert.assertEquals(_repository.getCount(), 1);
+
+        userDTO = new UserDTO(2, login, password);
+        _repository.delete(userDTO);
+        Assert.assertEquals(_repository.getCount(), 0);
+    }
+
+    @Test
+    public void findById() {
+        int id = 3;
+        UserDTO userDTO = new UserDTO(id, "login", "password");
+        _repository.add(userDTO);
+        Assert.assertTrue(_repository.exists(userDTO));
+
+        UserDTO userDTO2 = _repository.findById(id);
+        Assert.assertTrue(userDTO.equals(userDTO2));
+    }
+
+    @Test
+    public void findByName() {
+        UserDTO userDTO = new UserDTO(0, "login", "password");
+        _repository.add(userDTO);
+
+        Assert.assertEquals(_repository.findByName("login"), Collections.singletonList(userDTO));
+    }
+
+    @Override
+    protected IUserRepository Create() {
+        return new UserRepository();
+    }
+}
